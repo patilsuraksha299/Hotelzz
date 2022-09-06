@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Hotelz</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+    <!-- Compiled and minified CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-wrapper">
+        <a href="/" class="brand-logo p3">Django Hotels</a>
+      </div>
+    </nav>
+
+    <div class="container" style="margin-top: 50px">
+      <div class="row">
+        <div class="col m4">
+          <div class="input-field col s12">
+            <select id="emenities" multiple onchange="getHotels()">
+              <option value="" disabled selected>Choose your options</option>
+              {% for emenitie in emenities%}
+              <option value="{{emenitie.id}}">{{emenitie.name}}</option>
+              {% endfor %}
+            </select>
+            <label for="">Select Emenities</label>
+          </div>
+        </div>
+        <div class="col m4">
+          <label>Hotel Price</label>
+          <p class="range-field">
+            <input
+              onchange="getHotels()"
+              type="range"
+              id="price"
+              min="500"
+              max="15000"
+              value="15000"
+            />
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row" id="show_hotels_here"></div>
+    </div>
+
+    <script>
+      var show_hotels_here = document.getElementById("show_hotels_here");
+      $(document).ready(function () {
+        $("select").formSelect();
+      });
+
+      function getHotels() {
+        var price = document.getElementById("price");
+        var instance = M.FormSelect.getInstance(
+          document.getElementById("emenities")
+        );
+
+        var emenities = "";
+
+        var html = "";
+        if (instance) {
+          emenities = instance.getSelectedValues();
+        }
+        fetch(`/api/hotels?emenities=${emenities}&price=${price.value}`)
+          .then((result) => result.json())
+          .then((response) => {
+            for (var i = 0; i < response.length; i++) {
+              html += `
+                <div class="col s4">
+                  <div class="card">
+                    <div class="card-image">
+                      <img src="${response[i].hotel_image}">
+                        <span class="card-title">${
+                          response[i].hotel_name
+                        }</span>
+                    </div>
+                    <div class="card-content">
+                      Price-<span class="new badge">${(response[i].hotel_price)}</span>
+                      <p>${(response[i].hotel_description)}</p>
+                    </div>
+                    <div class="card-action">
+                      <a href="#">This is a link</a>
+                    </div>
+                  </div>
+                </div>
+            
+            
+            `;
+            }
+
+            show_hotels_here.innerHTML = html;
+
+            console.log(respnse);
+          });
+      }
+      getHotels();
+    </script>
+  </body>
+</html>
